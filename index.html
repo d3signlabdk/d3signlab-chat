@@ -125,11 +125,21 @@
     const message = userInput.value.trim();
     if (!message) return;
 
-    addMessage('Du', message, 'user');
+    const userMsg = document.createElement('div');
+    userMsg.className = 'message user';
+    userMsg.innerHTML = `<strong>Du:</strong> ${message}`;
+    messagesDiv.appendChild(userMsg);
     userInput.value = '';
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'message ai';
+    aiMsg.innerHTML = `<strong>D3SIGN Lab AI:</strong> Skriver...`;
+    messagesDiv.appendChild(aiMsg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
     try {
-      const response = await fetch('/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -137,25 +147,14 @@
         body: JSON.stringify({ message })
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        addMessage('AI', data.reply, 'ai');
-      } else {
-        addMessage('Fejl', data.error || 'Noget gik galt.', 'ai');
-      }
+      const data = await res.json();
+      aiMsg.innerHTML = `<strong>D3SIGN Lab AI:</strong> ${data.reply}`;
     } catch (err) {
-      addMessage('Fejl', 'Ingen forbindelse til serveren.', 'ai');
+      aiMsg.innerHTML = `<strong>Fejl:</strong> Der opstod en fejl.`;
     }
-  });
 
-  function addMessage(sender, text, type) {
-    const div = document.createElement('div');
-    div.className = `message ${type}`;
-    div.innerHTML = `<strong>${sender}:</strong> ${text}`;
-    messagesDiv.appendChild(div);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
+  });
 </script>
 
 </body>
