@@ -1,39 +1,53 @@
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Kun POST tilladt' });
-  }
+document.addEventListener("DOMContentLoaded", function () {
+  const chatIcon = document.getElementById("chat-icon");
+  const chatWindow = document.getElementById("chat-window");
+  const chatLog = document.getElementById("chat-log");
+  const userInput = document.getElementById("user-input");
+  const sendButton = document.getElementById("send-button");
 
-  const { message } = req.body;
+  // Åbn chat automatisk med velkomstbesked
+  chatWindow.style.display = "block";
+  addMessage("D3SIGN Lab AI", "Hej, jeg er din D3SIGN Lab assistent. Hvad kan jeg hjælpe med?");
 
-  if (!message) {
-    return res.status(400).json({ error: 'Ingen besked modtaget' });
-  }
+  chatIcon.addEventListener("click", () => {
+    chatWindow.style.display = chatWindow.style.display === "none" ? "block" : "none";
+  });
 
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: 'Du er en hjælpsom dansk AI-assistent. Svar altid på dansk.' },
-          { role: 'user', content: message }
-        ],
-      }),
-    });
+  sendButton.addEventListener("click", async () => {
+    const message = userInput.value.trim();
+    if (!message) return;
 
-    const data = await response.json();
+    addMessage("Du", message);
+    userInput.value = "";
 
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
+    try {
+      const response = await fetch("https://d3signlab-chat.vercel.app/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: message }],
+          language: "danish"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Serverfejl: " + response.status);
+      }
+
+      const data = await response.json();
+      const reply = data.message || "Beklager, jeg kunne ikke finde et svar.";
+      addMessage("D3SIGN Lab AI", reply);
+    } catch (error) {
+      addMessage("Fejl", "Noget gik galt: " + error.message);
     }
+  });
 
-    res.status(200).json({ reply: data.choices[0].message.content });
-  } catch (error) {
-    console.error(error); // Dette logger fejlen til Vercel Logs
-    res.status(500).json({ error: error.message || 'Noget gik galt på serveren.' });
+  function addMessage(sender, message) {
+    const messageElement = document.createElement("div");
+    messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    chatLog.appendChild(messageElement);
+    chatLog.scrollTop = chatLog.scrollHeight;
   }
-}
+});
