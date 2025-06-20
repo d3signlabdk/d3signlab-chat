@@ -1,39 +1,39 @@
 <!DOCTYPE html>
 <html lang="da">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Chat med D3SIGN Lab AI 💬</title>
-  </head>
-  <body>
-    <h1>Chat med D3SIGN Lab AI 💬</h1>
-    <textarea id="message" rows="3" cols="50" placeholder="Skriv din besked her..."></textarea>
-    <br />
-    <button onclick="sendMessage()">Send</button>
-    <p id="response"></p>
+<head>
+  <meta charset="UTF-8" />
+  <title>D3SIGN Lab Chat</title>
+</head>
+<body>
+  <h1>Chat med D3SIGN Lab AI 💬</h1>
+  <textarea id="input" rows="3" cols="50" placeholder="Skriv noget..."></textarea><br>
+  <button onclick="sendMessage()">Send</button>
+  <p id="response"></p>
 
-    <script>
-      async function sendMessage() {
-        const message = document.getElementById("message").value;
-        const responseEl = document.getElementById("response");
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("input").value;
+      const responseElement = document.getElementById("response");
 
-        try {
-          const res = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message }),
-          });
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message: input })
+        });
 
-          const data = await res.json();
-
-          if (res.ok) {
-            responseEl.innerText = "AI: " + data.reply;
-          } else {
-            responseEl.innerText = "Fejl: " + data.error;
-          }
-        } catch (err) {
-          responseEl.innerText = "Fejl: Kunne ikke kontakte serveren.";
+        const data = await res.json();
+        if (data.reply) {
+          responseElement.textContent = data.reply;
+        } else if (data.error) {
+          responseElement.textContent = "Fejl: " + data.error;
         }
+      } catch (err) {
+        responseElement.textContent = "Noget gik galt.";
       }
-    </script>
-  </body>
+    }
+  </script>
+</body>
 </html>
