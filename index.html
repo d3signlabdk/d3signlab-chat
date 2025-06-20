@@ -2,38 +2,161 @@
 <html lang="da">
 <head>
   <meta charset="UTF-8" />
-  <title>D3SIGN Lab Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>D3SIGN Lab AI Chat</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #chat-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 30px;
+      background: #1cc286;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      cursor: pointer;
+      z-index: 9999;
+    }
+
+    #chat-popup {
+      display: none;
+      flex-direction: column;
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 300px;
+      max-height: 400px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 9998;
+    }
+
+    #chat-header {
+      background: #1cc286;
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    .message {
+      margin-bottom: 10px;
+    }
+
+    .user {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .ai {
+      color: #1cc286;
+    }
+
+    form {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+
+    textarea {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      resize: none;
+      font-size: 14px;
+      outline: none;
+    }
+
+    button[type="submit"] {
+      background: #1cc286;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <h1>Chat med D3SIGN Lab AI 💬</h1>
-  <textarea id="input" rows="3" cols="50" placeholder="Skriv noget..."></textarea><br>
-  <button onclick="sendMessage()">Send</button>
-  <p id="response"></p>
 
-  <script>
-    async function sendMessage() {
-      const input = document.getElementById("input").value;
-      const responseElement = document.getElementById("response");
+<!-- Chat ikon -->
+<button id="chat-toggle">💬</button>
 
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ message: input })
-        });
+<!-- Chat popup -->
+<div id="chat-popup">
+  <div id="chat-header">Chat med D3SIGN Lab</div>
+  <div id="messages"></div>
+  <form id="chat-form">
+    <textarea id="user-input" rows="1" placeholder="Skriv en besked..."></textarea>
+    <button type="submit">Send</button>
+  </form>
+</div>
 
-        const data = await res.json();
-        if (data.reply) {
-          responseElement.textContent = data.reply;
-        } else if (data.error) {
-          responseElement.textContent = "Fejl: " + data.error;
-        }
-      } catch (err) {
-        responseElement.textContent = "Noget gik galt.";
+<script>
+  const toggleBtn = document.getElementById('chat-toggle');
+  const chatPopup = document.getElementById('chat-popup');
+  const form = document.getElementById('chat-form');
+  const userInput = document.getElementById('user-input');
+  const messagesDiv = document.getElementById('messages');
+
+  toggleBtn.addEventListener('click', () => {
+    chatPopup.style.display = chatPopup.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    addMessage('Du', message, 'user');
+    userInput.value = '';
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        addMessage('AI', data.reply, 'ai');
+      } else {
+        addMessage('Fejl', data.error || 'Noget gik galt.', 'ai');
       }
+    } catch (err) {
+      addMessage('Fejl', 'Ingen forbindelse til serveren.', 'ai');
     }
-  </script>
+  });
+
+  function addMessage(sender, text, type) {
+    const div = document.createElement('div');
+    div.className = `message ${type}`;
+    div.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+</script>
+
 </body>
 </html>
