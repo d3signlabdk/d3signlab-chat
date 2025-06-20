@@ -18,7 +18,16 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: message }],
+        messages: [
+          {
+            role: 'system',
+            content: 'Du er en hjælpsom AI, der altid svarer på dansk.',
+          },
+          {
+            role: 'user',
+            content: message,
+          },
+        ],
       }),
     });
 
