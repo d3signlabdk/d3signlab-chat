@@ -60,6 +60,14 @@ Specialdesigns og samarbejde:
 D3SIGN Lab tilbyder specialdesigns – fx QR-koder til WiFi, sociale medier mm., i stående, hængende eller liggende form.
 Samarbejder med virksomheder og influencere er muligt – kunder kan sende en forespørgsel via siden “Om os”.
 
+Returnering og reklamation:
+- Der gives 14 dages fortrydelsesret fra modtagelse af varen, dog ikke på specialfremstillede produkter.
+- Varen skal returneres i samme stand. Brugte eller ødelagte varer tages ikke retur.
+- Returnering skal ske ved at kontakte kontakt@d3signlab.dk
+- Der ydes 24 måneders reklamationsret ifølge købeloven.
+- Reklamationer skal meldes inden 7 dage efter, at fejlen er opdaget.
+- Skader forårsaget af forkert brug, uheld eller ændringer dækkes ikke.
+
 Kundeservice og kontakt:
 - Kontakt kan ske via “Om os”-formularen eller e-mail: kontakt@d3signlab.dk
 - Du skal venligt henvise til vilkår og betingelser samt privatpolitik, som findes i menuen på hjemmesiden.
