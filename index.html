@@ -118,6 +118,9 @@
 
   toggleBtn.addEventListener('click', () => {
     chatPopup.style.display = chatPopup.style.display === 'flex' ? 'none' : 'flex';
+    if (chatPopup.style.display === 'flex') {
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
   });
 
   form.addEventListener('submit', async (e) => {
@@ -139,7 +142,7 @@
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch('https://d3signlab-chat.vercel.app/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
