@@ -3,14 +3,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Kun POST tilladt' });
   }
 
+  const { message } = req.body;
+
+  if (!message) {
+    return res.status(400).json({ error: 'Ingen besked modtaget' });
+  }
+
   try {
-    const body = await req.json?.() || req.body;
-    const { message } = body;
-
-    if (!message) {
-      return res.status(400).json({ error: 'Ingen besked modtaget' });
-    }
-
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -19,7 +18,10 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: message }],
+        messages: [
+          { role: 'system', content: 'Du er en hjælpsom dansk AI-assistent. Svar altid på dansk.' },
+          { role: 'user', content: message }
+        ],
       }),
     });
 
@@ -31,6 +33,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({ reply: data.choices[0].message.content });
   } catch (error) {
+    console.error(error); // Dette logger fejlen til Vercel Logs
     res.status(500).json({ error: error.message || 'Noget gik galt på serveren.' });
   }
 }
