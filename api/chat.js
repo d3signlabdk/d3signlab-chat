@@ -13,7 +13,25 @@ export default async function handler(req, res) {
 
   try {
     const { message } = req.body;
+    const lowerCaseMessage = message.toLowerCase();
 
+    // Søgeord for farve/størrelse-forespørgsler
+    const relevantKeywords = [
+      "farve", "farver", "størrelse", "større", "mindre",
+      "kan den være", "i sort", "i hvid", "andre farver", "andre størrelser"
+    ];
+
+    const handlerOmTilpasning = relevantKeywords.some(keyword =>
+      lowerCaseMessage.includes(keyword)
+    );
+
+    if (handlerOmTilpasning) {
+      return res.status(200).json({
+        response: `Hvis du ønsker en anden farve eller størrelse, kan du sende en forespørgsel via formularen under produktet eller skrive til os på kontakt@d3signlab.dk 😊`
+      });
+    }
+
+    // Ellers brug OpenAI som normalt
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -72,7 +90,7 @@ Du skal holde svarene korte, i øjenhøjde og kun nævne dét kunden spørger om
 - Du må henvise venligt til vilkår og privatpolitik i menuen
 
 Du svarer KUN på dansk.
-          `.trim()
+            `.trim()
           },
           {
             role: "user",
