@@ -12,22 +12,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message } = req.body;
+    const { message, history = [] } = req.body;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        temperature: 0.5,
-        max_tokens: 400,
-        messages: [
-          {
-            role: "system",
-            content: `
+    const messages = [
+      {
+        role: "system",
+        content: `
 Du er en professionel, rolig og venlig AI-assistent for D3SIGN Lab – en dansk hobbyvirksomhed der laver 3D-printede produkter. Din stil er varm og hjælpsom, men altid kort og præcis. Du starter samtalen med:
 "Hej 😊 Jeg er din AI-assistent. Hvad kan jeg hjælpe dig med i dag?"
 
@@ -81,19 +71,37 @@ Svarene skal være:
 - Du må gerne henvise venligt til vilkår og privatpolitik i menuen
 
 Du svarer KUN på dansk.
-            `.trim()
-          },
-          {
-            role: "user",
-            content: message
-          }
-        ]
+        `.trim()
+      },
+      ...history,
+      {
+        role: "user",
+        content: message
+      }
+    ];
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        temperature: 0.5,
+        max_tokens: 400,
+        messages
       }),
     });
 
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content || "Intet svar modtaget.";
-    res.status(200).json({ response: reply });
+
+    res.status(200).json({
+      response: reply,
+      newHistory: [...history, { role: "user", content: message }, { role: "assistant", content: reply }]
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
