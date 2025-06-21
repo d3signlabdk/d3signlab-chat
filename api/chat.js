@@ -13,21 +13,27 @@ export default async function handler(req, res) {
 
   try {
     const { message } = req.body;
-    const lowerCaseMessage = message.toLowerCase();
+    const lower = message.toLowerCase();
 
-    // Søgeord for farve/størrelse-forespørgsler
-    const relevantKeywords = [
-      "farve", "farver", "størrelse", "større", "mindre",
-      "kan den være", "i sort", "i hvid", "andre farver", "andre størrelser"
+    // Hvis kunden spørger hvilke farver man kan vælge
+    const spørgerOmFarver = [
+      "hvilke farver", "hvad for nogle farver", "hvad for farver", "hvad kan man få den i", "hvad farver findes", "hvad er standardfarverne"
     ];
 
-    const handlerOmTilpasning = relevantKeywords.some(keyword =>
-      lowerCaseMessage.includes(keyword)
-    );
-
-    if (handlerOmTilpasning) {
+    if (spørgerOmFarver.some(k => lower.includes(k))) {
       return res.status(200).json({
-        response: `Hvis du ønsker en anden farve eller størrelse, kan du sende en forespørgsel via formularen under produktet eller skrive til os på kontakt@d3signlab.dk 😊`
+        response: "Alle produkter fås som standard i sort eller hvid 😊"
+      });
+    }
+
+    // Hvis kunden ønsker en anden farve eller størrelse
+    const ønskerAndet = [
+      "kan jeg få den i", "kan den være i", "findes den i", "andre farver", "anden farve", "større", "mindre", "andre størrelser", "kan den laves i", "kan du lave", "kan i lave"
+    ];
+
+    if (ønskerAndet.some(k => lower.includes(k))) {
+      return res.status(200).json({
+        response: "Hvis du ønsker en anden farve eller størrelse, kan du sende en forespørgsel via formularen under produktet eller skrive til os på kontakt@d3signlab.dk 😊"
       });
     }
 
@@ -63,8 +69,8 @@ Du skal holde svarene korte, i øjenhøjde og kun nævne dét kunden spørger om
 - Eiffeltårn
 
 **Farver og tilpasninger:**
-- Standardfarver: sort og hvid.
-- Andre farver/størrelser: +15 kr. – bestilles via kontaktformular under produktet.
+- Standardfarver: sort og hvid
+- Andre farver eller størrelser: +15 kr – bestilles via kontaktformular eller mail
 
 **Bestilling og betaling:**
 - Bestil via formularen på produktsiden
@@ -90,7 +96,7 @@ Du skal holde svarene korte, i øjenhøjde og kun nævne dét kunden spørger om
 - Du må henvise venligt til vilkår og privatpolitik i menuen
 
 Du svarer KUN på dansk.
-            `.trim()
+          `.trim()
           },
           {
             role: "user",
